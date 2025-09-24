@@ -1,26 +1,7 @@
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+export type { PlanTier, PlanInfo } from './profileStoreBase'
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-
-export type PlanTier = 'free' | 'trial' | 'premium'
-
-export type PlanInfo = {
-  tier: PlanTier
-  trialEndsAt: string | null
-  daysRemaining: number | null
-  isTrialActive: boolean
-  isPremium: boolean
-  canUseLongForm: boolean
-  canRequestFeedback: boolean
-}
-
-type ProfileContextValue = {
-  status: 'loading' | 'ready' | 'error'
-  plan: PlanInfo
-  refreshProfile: () => Promise<void>
-  setLocalPlan: (tier: PlanTier) => void
-}
-
-const ProfileContext = createContext<ProfileContextValue | undefined>(undefined)
+import { ProfileContext, type PlanInfo, type PlanTier, type ProfileContextValue } from './profileStoreBase'
 
 const PROFILE_STORAGE_KEY = 'onelinediary.profile.plan'
 const DEFAULT_PLAN: PlanInfo = {
@@ -159,10 +140,3 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>
 }
 
-export function usePlan() {
-  const context = useContext(ProfileContext)
-  if (!context) {
-    throw new Error('usePlan must be used within a ProfileProvider')
-  }
-  return context
-}

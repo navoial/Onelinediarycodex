@@ -1,15 +1,6 @@
-import { createContext, type ReactNode, useContext, useMemo, useState } from 'react'
+import { type ReactNode, useMemo, useState } from 'react'
 import { addDays } from '@/lib/time'
-
-type DateState = {
-  today: Date
-  selectedDate: Date
-  setSelectedDate: (date: Date) => void
-  goToPreviousDay: () => void
-  goToNextDay: () => void
-}
-
-const DateStateContext = createContext<DateState | undefined>(undefined)
+import { DateStateContext } from './dateStateContextBase'
 
 export function DateStateProvider({ children }: { children: ReactNode }) {
   const today = useMemo(() => new Date(), [])
@@ -26,12 +17,4 @@ export function DateStateProvider({ children }: { children: ReactNode }) {
   }, [selectedDate, today])
 
   return <DateStateContext.Provider value={value}>{children}</DateStateContext.Provider>
-}
-
-export function useDateState() {
-  const context = useContext(DateStateContext)
-  if (!context) {
-    throw new Error('useDateState must be used within a DateStateProvider')
-  }
-  return context
 }

@@ -8,8 +8,8 @@ import {
   isSameDate,
   toISODateString,
 } from '@/lib/time'
-import { useDateState } from '@/state/DateStateContext'
-import { useMonthSummary } from '@/state/EntryStore'
+import { useDateState } from '@/state/useDateState'
+import { useMonthSummary } from '@/state/useEntryStore'
 import styles from './CalendarRoute.module.css'
 
 const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0]

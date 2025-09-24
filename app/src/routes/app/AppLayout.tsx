@@ -2,7 +2,8 @@ import AppHeader from '@/components/AppHeader'
 import { DateStateProvider } from '@/state/DateStateContext'
 import { EntryProvider } from '@/state/EntryStore'
 import { ProfileProvider } from '@/state/ProfileStore'
-import { useAuth } from '@/state/AuthContext'
+import { useAuth } from '@/state/useAuth'
+import { ToastProvider } from '@/state/ToastContext'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import styles from './AppLayout.module.css'
 
@@ -21,19 +22,21 @@ export default function AppLayout() {
   }
 
   return (
-    <DateStateProvider>
-      <ProfileProvider>
-        <EntryProvider>
-          <div className={styles.container}>
-            <div className={styles.inner}>
-              {hideAppHeader ? null : <AppHeader />}
-              <main className={styles.main}>
-                <Outlet />
-              </main>
+    <ToastProvider>
+      <DateStateProvider>
+        <ProfileProvider>
+          <EntryProvider>
+            <div className={styles.container}>
+              <div className={styles.inner}>
+                {hideAppHeader ? null : <AppHeader />}
+                <main className={styles.main}>
+                  <Outlet />
+                </main>
+              </div>
             </div>
-          </div>
-        </EntryProvider>
-      </ProfileProvider>
-    </DateStateProvider>
+          </EntryProvider>
+        </ProfileProvider>
+      </DateStateProvider>
+    </ToastProvider>
   )
 }

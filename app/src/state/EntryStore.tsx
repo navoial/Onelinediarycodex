@@ -1,64 +1,13 @@
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+export type { Entry, EntryRecord, EntryRecordStatus, AiStatus, QueueAction } from './entryStoreBase'
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { get, set } from 'idb-keyval'
 import { supabase } from '@/lib/supabase'
-import { addMonths, formatMonthShort, toISODateString } from '@/lib/time'
+import { addMonths, toISODateString } from '@/lib/time'
 import { requestFeedback } from '@/lib/ai'
+import { EntryStoreContext, type EntryContextValue, type EntryRecord, type QueueAction, type DaySummary, type MonthSummary, type Entry } from './entryStoreBase'
 
 const SELF_HARM_FALLBACK =
   'I’m really sorry that things feel heavy right now. If you’re in immediate danger, please contact local emergency services. You can call or text 988 in the US/Canada, or find worldwide helplines at https://www.opencounseling.com/suicide-hotlines.'
-
-export type EntryRecordStatus = 'idle' | 'loading' | 'synced' | 'saving' | 'offline' | 'error'
-
-export type AiStatus = 'idle' | 'loading' | 'delayed' | 'ready' | 'error' | 'flagged'
-
-export type Entry = {
-  id?: string
-  entry_date: string
-  one_liner: string
-  long_text: string | null
-  ai_feedback: string | null
-  ai_feedback_generated_at: string | null
-  updated_at?: string
-  created_at?: string
-}
-
-export type EntryRecord = {
-  entry: Entry | null
-  status: EntryRecordStatus
-  error?: string
-  aiStatus: AiStatus
-  aiError?: string
-  aiFlagged: boolean
-  aiParts?: {
-    reflection: string
-    microStep: string
-    question: string
-  }
-}
-
-type DaySummary = {
-  hasShort: boolean
-  hasLong: boolean
-}
-
-type MonthSummary = Record<string, DaySummary>
-
-type QueueAction =
-  | { id: string; isoDate: string; type: 'upsertOneLiner'; payload: { text: string; requestFeedback: boolean } }
-  | { id: string; isoDate: string; type: 'saveLongText'; payload: { text: string } }
-
-type EntryContextValue = {
-  entries: Record<string, EntryRecord>
-  summaries: Record<string, MonthSummary>
-  ensureEntry: (isoDate: string) => Promise<void>
-  ensureMonthSummary: (year: number, month: number) => Promise<void>
-  upsertOneLiner: (isoDate: string, text: string, options?: { requestFeedback?: boolean }) => Promise<void>
-  saveLongText: (isoDate: string, text: string) => Promise<void>
-  flushQueue: () => Promise<void>
-  pendingQueue: number
-}
-
-const EntryStoreContext = createContext<EntryContextValue | undefined>(undefined)
 
 const ENTRIES_KEY = 'onelinediary.entries'
 const SUMMARIES_KEY = 'onelinediary.summaries'
@@ -751,71 +700,9 @@ export function EntryProvider({ children }: { children: ReactNode }) {
   return <EntryStoreContext.Provider value={value}>{children}</EntryStoreContext.Provider>
 }
 
-export function useEntryStore() {
-  const context = useContext(EntryStoreContext)
-  if (!context) {
-    throw new Error('useEntryStore must be used within EntryProvider')
-  }
-  return context
-}
 
-export function useMonthSummary(year: number, month: number) {
-  const { summaries, ensureMonthSummary } = useEntryStore()
-  useEffect(() => {
-    void ensureMonthSummary(year, month)
-  }, [ensureMonthSummary, year, month])
-  const monthKey = `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}`
-  return summaries[monthKey]
-}
 
-export function useEntryForDate(date: Date) {
-  const isoDate = useMemo(() => toISODateString(date), [date])
-  const { entries, ensureEntry } = useEntryStore()
-  useEffect(() => {
-    void ensureEntry(isoDate)
-  }, [ensureEntry, isoDate])
-  return entries[isoDate]
-}
 
-export function useEntryIndicators(dates: Date[]) {
-  const { summaries, entries } = useEntryStore()
-  return useMemo(() => {
-    return dates.map((date) => {
-      const iso = toISODateString(date)
-      const monthKey = iso.slice(0, 7)
-      const summary = summaries[monthKey]?.[iso]
-      const fallback = deriveDaySummary(entries[iso]?.entry ?? null)
-      return {
-        iso,
-        hasShort: summary?.hasShort ?? fallback?.hasShort ?? false,
-        hasLong: summary?.hasLong ?? fallback?.hasLong ?? false,
-      }
-    })
-  }, [dates, entries, summaries])
-}
 
-export function useEntryStatusMessage(isoDate: string) {
-  const { entries } = useEntryStore()
-  const record = entries[isoDate]
-  if (!record) return undefined
-  switch (record.status) {
-    case 'saving':
-      return 'Syncing…'
-    case 'offline':
-      return 'Saved offline — will sync later.'
-    case 'synced':
-      return record.aiFlagged ? 'Support resources shared' : 'Saved'
-    case 'error':
-      return record.error ?? 'Error'
-    default:
-      return undefined
-  }
-}
 
-export function describeQueue(queue: QueueAction[]) {
-  return `${queue.length} pending actions`
-}
 
-export function formatMonthLabel(date: Date) {
-  return formatMonthShort(date)
-}

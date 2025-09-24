@@ -22,7 +22,11 @@ Status legend: ✅ Done · ⚠️ In Progress/Partial · ⭕ Not Started
 - ⚠️ **Today highlight & accessibility** – Ensure aria labels announce “today / has entry”; confirm contrast tokens with design system.
 
 ## Account / Profile Area
-- ⚠️ **Layout** – Custom header/back button implemented; section lists present. Needs wiring to actual detail screens/forms, plan card states, notifications sub-screen, and logout confirmation dialog.
+- ⚠️ **Layout & navigation** – Account overview now routes to name/email/password screens; still need plan card states, notifications entry, and logout confirmation dialog.
+- ✅ **Name edit flow** – Supabase metadata updates with success/error states and cancel/back handling in place.
+- ✅ **Email update flow** – Supabase change email flow wired with confirmation messaging and error handling.
+- ⚠️ **Password update flow** – Re-auth + Supabase password update implemented; add strength meter, rate limiting UX, and analytics.
+- ✅ **Profile refresh UX** – Auth store refreshes after edits and global success toasts confirm updates.
 - ⭕ **Notifications screen & logic** – No UI or scheduling logic yet (Capacitor Local Notifications / email fallback).
 
 ## Billing & Entitlements
@@ -53,5 +57,6 @@ Status legend: ✅ Done · ⚠️ In Progress/Partial · ⭕ Not Started
 
 ## Outstanding Technical Integrations
 - ⚠️ **Supabase Edge function (generateFeedback)** – Function implemented with moderation, JSON response, and stale-write guard; needs production validation and error monitoring.
+- ✅ **React refresh-ready contexts** – Context providers split from hooks/utilities so lint passes under fast refresh.
 - ⭕ **Capacitor wrappers** – Mobile builds not configured; need plugin setup for storage, notifications, secure tokens.
 - ⭕ **Testing & QA** – No automated unit/e2e coverage yet; tests specified in SRS pending.

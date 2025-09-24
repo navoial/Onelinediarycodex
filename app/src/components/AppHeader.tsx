@@ -1,5 +1,5 @@
 import { formatMonthShort, isSameDate } from '@/lib/time'
-import { useDateState } from '@/state/DateStateContext'
+import { useDateState } from '@/state/useDateState'
 import { type SVGProps, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import WeekStrip from './WeekStrip'

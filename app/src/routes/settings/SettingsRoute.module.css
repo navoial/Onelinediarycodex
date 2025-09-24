@@ -82,3 +82,82 @@
   text-transform: uppercase;
   align-self: center;
 }
+
+.formCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  background: var(--color-brand-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  padding: var(--space-xl);
+}
+
+.label {
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.input {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  font: inherit;
+  width: 100%;
+}
+
+.helperText {
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-s);
+  margin-top: var(--space-m);
+}
+
+.ghostButton,
+.primaryButton {
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font-weight: var(--font-weight-semibold);
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+}
+
+.ghostButton {
+  background: transparent;
+  color: var(--color-ink-high);
+}
+
+.primaryButton {
+  background: var(--color-accent-primary);
+  color: var(--color-brand-white);
+}
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorText {
+  color: #c0362c;
+  margin: 0;
+  font-size: 14px;
+}
+
+.successText {
+  color: #1f7a3f;
+  margin: 0;
+  font-size: 14px;
+}
+
+.item[aria-disabled='true'],
+.item:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}

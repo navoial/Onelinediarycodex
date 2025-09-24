@@ -1,20 +1,17 @@
-import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react'
+export type { AuthUser } from './authContextBase'
+import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import type { User } from '@supabase/supabase-js'
+import { AuthContext, type AuthContextValue, type AuthUser } from './authContextBase'
 
-export type AuthUser = {
-  id: string
-  email?: string
+function mapAuthUser(raw: User | null | undefined): AuthUser | null {
+  if (!raw) return null
+  return {
+    id: raw.id,
+    email: raw.email ?? undefined,
+    fullName: typeof raw.user_metadata?.full_name === 'string' ? raw.user_metadata.full_name : undefined,
+  }
 }
-
-type AuthContextValue = {
-  user: AuthUser | null
-  status: 'loading' | 'authenticated' | 'unauthenticated'
-  signIn: (email: string, password: string) => Promise<void>
-  signUp: (email: string, password: string) => Promise<void>
-  signOut: () => Promise<void>
-}
-
-const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
@@ -30,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const init = async () => {
       const { data } = await client.auth.getSession()
       if (data.session) {
-        setUser({ id: data.session.user.id, email: data.session.user.email ?? undefined })
+        setUser(mapAuthUser(data.session.user))
         setStatus('authenticated')
       } else {
         setUser(null)
@@ -42,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: subscription } = client.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        setUser({ id: session.user.id, email: session.user.email ?? undefined })
+        setUser(mapAuthUser(session.user))
         setStatus('authenticated')
       } else {
         setUser(null)
@@ -72,9 +69,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!supabase) throw new Error('Supabase not configured')
       const { error } = await supabase.auth.signOut()
       if (error) throw error
+      setUser(null)
+      setStatus('unauthenticated')
     }
 
-    return { signIn, signUp, signOut }
+    async function refreshUser() {
+      if (!supabase) throw new Error('Supabase not configured')
+      const { data, error } = await supabase.auth.getUser()
+      if (error) throw error
+      const nextUser = mapAuthUser(data.user)
+      setUser(nextUser)
+      setStatus(nextUser ? 'authenticated' : 'unauthenticated')
+    }
+
+    return { signIn, signUp, signOut, refreshUser }
   }, [])
 
   const value = useMemo<AuthContextValue>(() => ({ user, status, ...actions }), [actions, status, user])
@@ -82,10 +90,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) {
-    throw new Error('useAuth must be used within AuthProvider')
-  }
-  return ctx
-}

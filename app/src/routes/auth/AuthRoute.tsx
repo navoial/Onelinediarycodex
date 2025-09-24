@@ -1,6 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/state/AuthContext'
+import { useAuth } from '@/state/useAuth'
 import styles from './AuthRoute.module.css'
 
 export default function AuthRoute() {

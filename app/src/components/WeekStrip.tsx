@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react'
 import { getFeatureFlag } from '@/featureFlags'
 import { getWeekRangeContaining, isSameDate, toISODateString } from '@/lib/time'
-import { useDateState } from '@/state/DateStateContext'
-import { useEntryIndicators, useEntryStore } from '@/state/EntryStore'
+import { useDateState } from '@/state/useDateState'
+import { useEntryIndicators, useEntryStore } from '@/state/useEntryStore'
 import DayChip from './DayChip'
 import styles from './WeekStrip.module.css'
 
