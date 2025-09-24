@@ -68,7 +68,22 @@
   width: 10px;
   height: 10px;
   border-radius: 6px;
-  background: transparent;
   border: 2px solid currentColor;
+  background: transparent;
   opacity: 1;
+}
+
+.hasShort.hasLong .marker {
+  background: transparent;
+}
+
+.hasShort.hasLong .marker::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 2px;
+  background: currentColor;
 }

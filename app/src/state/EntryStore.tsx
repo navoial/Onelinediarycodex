@@ -29,6 +29,11 @@ export type EntryRecord = {
   aiStatus: AiStatus
   aiError?: string
   aiFlagged: boolean
+  aiParts?: {
+    reflection: string
+    microStep: string
+    question: string
+  }
 }
 
 type DaySummary = {
@@ -276,7 +281,13 @@ export function EntryProvider({ children }: { children: ReactNode }) {
 
       setRecord(isoDate, (current) => {
         if (!current) return current
-        return { ...current, aiStatus: 'loading', aiError: undefined, aiFlagged: false }
+        return {
+          ...current,
+          aiStatus: 'loading',
+          aiError: undefined,
+          aiFlagged: false,
+          aiParts: current.aiParts,
+        }
       })
 
       scheduleDelayTimer(isoDate)
@@ -287,6 +298,19 @@ export function EntryProvider({ children }: { children: ReactNode }) {
           return
         }
         clearDelayTimer(isoDate)
+        if (!response) {
+          setRecord(isoDate, (current) => {
+            if (!current) return current
+            return {
+              ...current,
+              aiStatus: current.entry?.ai_feedback ? 'ready' : 'idle',
+              aiError: undefined,
+              aiFlagged: current.aiFlagged,
+              aiParts: current.aiParts,
+            }
+          })
+          return
+        }
         setRecord(isoDate, (current) => {
           if (!current) return current
           const nextEntry = current.entry
@@ -302,6 +326,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
             aiStatus: response.flagged ? 'flagged' : 'ready',
             aiError: undefined,
             aiFlagged: response.flagged ?? false,
+            aiParts: response.parts ?? (response.flagged ? undefined : current.aiParts),
           }
         })
       } catch (error) {
@@ -316,6 +341,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
             aiStatus: 'error',
             aiError: error instanceof Error ? error.message : 'We could not load feedback right now.',
             aiFlagged: current.aiFlagged,
+            aiParts: current.aiParts,
           }
         })
       }
@@ -336,6 +362,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
           aiStatus: current?.aiStatus ?? (current?.entry?.ai_feedback ? 'ready' : 'idle'),
           aiError: undefined,
           aiFlagged: current?.aiFlagged ?? (current?.entry?.ai_feedback === SELF_HARM_FALLBACK),
+          aiParts: current?.aiParts,
         }
       })
 
@@ -347,6 +374,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
             status: current.entry ? 'offline' : 'idle',
             error: current.entry ? undefined : 'Supabase client not configured',
             aiFlagged: current.aiFlagged,
+            aiParts: current.aiParts,
           }
         })
         return
@@ -367,6 +395,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
           aiStatus: entry?.ai_feedback ? 'ready' : 'idle',
           aiError: undefined,
           aiFlagged: entry?.ai_feedback === SELF_HARM_FALLBACK,
+          aiParts: undefined,
         }
       })
 
@@ -467,6 +496,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
               aiStatus: action.payload.requestFeedback ? 'loading' : current?.aiStatus ?? 'idle',
               aiError: undefined,
               aiFlagged: action.payload.requestFeedback ? false : current?.aiFlagged ?? false,
+              aiParts: action.payload.requestFeedback ? undefined : current?.aiParts,
             }
           })
           didChange = true
@@ -500,6 +530,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
               aiStatus: current?.aiStatus ?? (entry.ai_feedback ? 'ready' : 'idle'),
               aiError: current?.aiError,
               aiFlagged: current?.aiFlagged ?? entry.ai_feedback === SELF_HARM_FALLBACK,
+              aiParts: current?.aiParts,
             }
           })
           didChange = true
@@ -566,6 +597,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
           aiStatus: options?.requestFeedback ? 'loading' : current?.aiStatus ?? 'idle',
           aiError: undefined,
           aiFlagged: false,
+          aiParts: options?.requestFeedback ? undefined : current?.aiParts,
         }
       })
 
@@ -596,24 +628,35 @@ export function EntryProvider({ children }: { children: ReactNode }) {
             status: 'offline',
             error: error.message,
             aiFlagged: current.aiFlagged,
+            aiParts: current.aiParts,
           }
         })
         return
       }
 
-      setRecord(isoDate, () => {
-        const entry = data ?? null
+      setRecord(isoDate, (current) => {
+        const entry = data ?? current?.entry ?? null
         updateDaySummary(isoDate, entry)
-        if (options?.requestFeedback) {
+        if (options?.requestFeedback && entry) {
           void startFeedbackRequest(isoDate, entry)
         }
+        const aiStatus = entry?.ai_feedback
+          ? 'ready'
+          : options?.requestFeedback
+          ? 'loading'
+          : current?.aiStatus ?? 'idle'
         return {
           entry,
           status: 'synced',
           error: undefined,
-          aiStatus: entry?.ai_feedback ? 'ready' : options?.requestFeedback ? 'loading' : 'idle',
+          aiStatus,
           aiError: undefined,
           aiFlagged: entry?.ai_feedback === SELF_HARM_FALLBACK,
+          aiParts: entry?.ai_feedback
+            ? current?.aiParts
+            : options?.requestFeedback
+            ? undefined
+            : current?.aiParts,
         }
       })
     },
@@ -641,6 +684,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
           aiStatus: current.aiStatus,
           aiError: current.aiError,
           aiFlagged: current.aiFlagged,
+          aiParts: current.aiParts,
         }
       })
 
@@ -667,6 +711,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
             status: 'offline',
             error: error.message,
             aiFlagged: current.aiFlagged,
+            aiParts: current.aiParts,
           }
         })
         return
@@ -682,6 +727,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
           aiStatus: current?.aiStatus ?? (entry?.ai_feedback ? 'ready' : 'idle'),
           aiError: current?.aiError,
           aiFlagged: current?.aiFlagged ?? entry?.ai_feedback === SELF_HARM_FALLBACK,
+          aiParts: current?.aiParts,
         }
       })
     },

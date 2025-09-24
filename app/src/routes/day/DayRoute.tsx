@@ -122,6 +122,7 @@ export default function DayRoute() {
               feedback={entry?.ai_feedback ?? undefined}
               fallbackMessage={record?.aiError}
               flagged={record?.aiFlagged}
+              parts={record?.aiParts}
             />
           ) : null}
           {entry?.long_text ? (
