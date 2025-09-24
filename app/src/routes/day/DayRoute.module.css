@@ -1,0 +1,98 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.promptSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}
+
+.promptTitle {
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 80px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-m);
+  font-size: var(--font-size-body-m);
+  resize: vertical;
+}
+
+.counterRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--color-ink-low);
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statusMessage {
+  font-size: 12px;
+  color: var(--color-ink-low);
+}
+
+.primaryButton {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  font-size: 16px;
+  font-weight: var(--font-weight-semibold);
+  background: var(--color-brand-black);
+  color: var(--color-brand-white);
+}
+
+.entryTitle {
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.extraSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+.extraCard {
+  background: var(--color-brand-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-l);
+  border: 1px solid var(--color-border-default);
+}
+
+.secondaryButton {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-brand-white);
+  padding: 12px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.editButton {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink-high);
+  cursor: pointer;
+}
+
+.aiSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}

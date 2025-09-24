@@ -1,0 +1,74 @@
+.button {
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs) var(--space-s) calc(var(--space-xs) + 4px);
+  color: var(--color-ink-high);
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.button:disabled {
+  opacity: 0.4;
+}
+
+.button:not(:disabled):hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.selected {
+  background: var(--color-state-selected);
+  color: var(--color-brand-white);
+}
+
+.today {
+  font-weight: var(--font-weight-semibold);
+}
+
+.weekday {
+  font-size: var(--font-size-caption-s);
+  font-weight: var(--font-weight-medium);
+}
+
+.day {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.marker {
+  position: absolute;
+  bottom: 2px;
+  height: 6px;
+  width: 6px;
+  border-radius: 3px;
+  background: currentColor;
+  opacity: 0;
+}
+
+.hasShort {
+  position: relative;
+}
+
+.hasShort .marker {
+  opacity: 1;
+}
+
+.hasLong {
+  position: relative;
+}
+
+.hasLong .marker {
+  bottom: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 6px;
+  background: transparent;
+  border: 2px solid currentColor;
+  opacity: 1;
+}

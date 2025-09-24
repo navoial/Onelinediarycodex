@@ -1,0 +1,14 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  flex-wrap: wrap;
+}
+
+.days {
+  flex: 1;
+  display: flex;
+  gap: var(--space-s);
+  overflow-x: auto;
+  padding-bottom: var(--space-s);
+}
