@@ -1,14 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getFeatureFlag } from '@/featureFlags'
 import {
-  addMonths,
   endOfMonth,
   formatDayNumber,
-  formatMonthYear,
   formatWeekday,
   isSameDate,
-  startOfMonth,
   toISODateString,
 } from '@/lib/time'
 import { useDateState } from '@/state/DateStateContext'
@@ -17,38 +14,56 @@ import styles from './CalendarRoute.module.css'
 
 const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0]
 
-function isSameMonth(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth()
-}
-
 export default function CalendarRoute() {
   const navigate = useNavigate()
   const { selectedDate, today, setSelectedDate } = useDateState()
   const allowFuture = getFeatureFlag('allowFutureEntries')
-  const [viewMonth, setViewMonth] = useState(() => startOfMonth(selectedDate))
+  const [viewYear, setViewYear] = useState(selectedDate.getFullYear())
+  const skipSyncRef = useRef(false)
+  const monthSectionRefs = useRef<Array<HTMLDivElement | null>>([])
 
-  const nextMonthDate = useMemo(() => startOfMonth(addMonths(viewMonth, 1)), [viewMonth])
-  const currentSummary = useMonthSummary(viewMonth.getFullYear(), viewMonth.getMonth() + 1)
-  const nextSummary = useMonthSummary(nextMonthDate.getFullYear(), nextMonthDate.getMonth() + 1)
+  useEffect(() => {
+    const selectedYear = selectedDate.getFullYear()
+    if (!skipSyncRef.current && selectedYear !== viewYear) {
+      setViewYear(selectedYear)
+    }
+    skipSyncRef.current = false
+  }, [selectedDate, viewYear])
 
   const months = useMemo(() => {
-    return [viewMonth, nextMonthDate].map((anchor) => {
-      const start = startOfMonth(anchor)
-      const end = endOfMonth(anchor)
+    return Array.from({ length: 12 }, (_, monthIndex) => {
+      const start = new Date(viewYear, monthIndex, 1)
+      const end = endOfMonth(start)
       const startOffset = WEEKDAY_ORDER.indexOf(start.getDay())
       const days: Array<Date | null> = []
       for (let i = 0; i < startOffset; i += 1) {
         days.push(null)
       }
       for (let day = 1; day <= end.getDate(); day += 1) {
-        days.push(new Date(anchor.getFullYear(), anchor.getMonth(), day))
+        days.push(new Date(viewYear, monthIndex, day))
       }
       return {
         anchor: start,
+        monthIndex,
         days,
       }
     })
-  }, [nextMonthDate, viewMonth])
+  }, [viewYear])
+
+  const monthSummaries = [
+    useMonthSummary(viewYear, 1),
+    useMonthSummary(viewYear, 2),
+    useMonthSummary(viewYear, 3),
+    useMonthSummary(viewYear, 4),
+    useMonthSummary(viewYear, 5),
+    useMonthSummary(viewYear, 6),
+    useMonthSummary(viewYear, 7),
+    useMonthSummary(viewYear, 8),
+    useMonthSummary(viewYear, 9),
+    useMonthSummary(viewYear, 10),
+    useMonthSummary(viewYear, 11),
+    useMonthSummary(viewYear, 12),
+  ]
 
   const weekdayLabels = useMemo(() => {
     return WEEKDAY_ORDER.map((weekdayIndex) => {
@@ -61,53 +76,69 @@ export default function CalendarRoute() {
     if (!allowFuture && date > today) {
       return
     }
+    skipSyncRef.current = true
+    setViewYear(date.getFullYear())
     setSelectedDate(date)
     navigate('/')
   }
 
-  function goToPreviousMonth() {
-    setViewMonth((prev) => startOfMonth(addMonths(prev, -1)))
+  function goToPreviousYear() {
+    skipSyncRef.current = true
+    setViewYear((prev) => prev - 1)
   }
 
-  function goToNextMonth() {
-    setViewMonth((prev) => startOfMonth(addMonths(prev, 1)))
+  function goToNextYear() {
+    skipSyncRef.current = true
+    setViewYear((prev) => prev + 1)
   }
+
+  const selectedMonthIndex = selectedDate.getFullYear() === viewYear ? selectedDate.getMonth() : null
+
+  useEffect(() => {
+    const targetIndex = selectedMonthIndex ?? 0
+    const node = monthSectionRefs.current[targetIndex]
+    if (node) {
+      node.scrollIntoView({ block: 'start', behavior: 'auto' })
+    }
+  }, [viewYear, selectedMonthIndex])
 
   return (
     <div className={styles.container}>
-      {months.map(({ anchor, days }, index) => {
-        const summary = isSameMonth(anchor, viewMonth) ? currentSummary : nextSummary
-        const monthLabel = formatMonthYear(anchor)
+      <div className={styles.controls}>
+        <button
+          type="button"
+          className={styles.navButton}
+          onClick={goToPreviousYear}
+          aria-label="Previous year"
+        >
+          <span aria-hidden="true">&larr;</span>
+        </button>
+        <h2 className={styles.controlsTitle}>{viewYear}</h2>
+        <button
+          type="button"
+          className={styles.navButton}
+          onClick={goToNextYear}
+          aria-label="Next year"
+        >
+          <span aria-hidden="true">&rarr;</span>
+        </button>
+      </div>
+      {months.map(({ anchor, monthIndex, days }) => {
+        const summary = monthSummaries[monthIndex]
+        const monthLabel = new Intl.DateTimeFormat(navigator.language, {
+          month: 'long',
+        }).format(anchor)
+        const monthTitleClassName = selectedMonthIndex === monthIndex ? styles.monthTitleActive : styles.monthTitle
         return (
-          <section key={anchor.toISOString()} className={styles.monthSection}>
+          <section
+            key={anchor.toISOString()}
+            className={styles.monthSection}
+            ref={(node) => {
+              monthSectionRefs.current[monthIndex] = node
+            }}
+          >
             <div className={styles.monthHeader}>
-              {index === 0 ? (
-                <>
-                  <button
-                    type="button"
-                    className={styles.navButton}
-                    onClick={goToPreviousMonth}
-                    aria-label="Previous month"
-                  >
-                    <span aria-hidden="true">&larr;</span>
-                  </button>
-                  <h2 className={styles.monthTitle}>{monthLabel}</h2>
-                  <button
-                    type="button"
-                    className={styles.navButton}
-                    onClick={goToNextMonth}
-                    aria-label="Next month"
-                  >
-                    <span aria-hidden="true">&rarr;</span>
-                  </button>
-                </>
-              ) : (
-                <>
-                  <span className={styles.navButtonPlaceholder} />
-                  <h2 className={styles.monthTitle}>{monthLabel}</h2>
-                  <span className={styles.navButtonPlaceholder} />
-                </>
-              )}
+              <h2 className={monthTitleClassName}>{monthLabel}</h2>
             </div>
             <div className={styles.weekdayRow}>
               {weekdayLabels.map((label) => (

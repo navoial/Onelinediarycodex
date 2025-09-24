@@ -4,7 +4,7 @@ Status legend: ✅ Done · ⚠️ In Progress/Partial · ⭕ Not Started
 
 ## Navigation & Layout
 - ✅ **Global header & week strip** – Month label opens calendar, chevron navigation and Today chip present, week strip reflects selected week with entry markers.
-- ⚠️ **Full calendar view** – Month navigation added with previous/next controls and entry markers; still missing sticky month headers and polished mobile scrolling per SRS (needs momentum scrolling review and potential virtualization for long ranges).
+- ⚠️ **Full calendar view** – Sticky headers, gradient nav bar, and stacked months with previous/next prefetch now match spec; still consider long-list virtualization/momentum tweaks for final polish.
 
 ## Core Journaling Flows
 - ✅ **One-sentence entry** – 220 grapheme limit enforced with live counter; save/upsert wired via `EntryStore`; status messaging (“Saved/Syncing/Offline”) in place.
@@ -18,7 +18,7 @@ Status legend: ✅ Done · ⚠️ In Progress/Partial · ⭕ Not Started
 
 ## Calendar & History
 - ✅ **Week strip indicators** – Uses summaries with hasShort/hasLong markers.
-- ⚠️ **Month summaries prefetch** – Current logic loads visible month; need ±1 month/week prefetch to avoid flicker when scrolling quickly.
+- ✅ **Month summaries prefetch** – Calendar now loads previous/current/next month summaries up front to keep markers stable while scrolling.
 - ⚠️ **Today highlight & accessibility** – Ensure aria labels announce “today / has entry”; confirm contrast tokens with design system.
 
 ## Account / Profile Area
