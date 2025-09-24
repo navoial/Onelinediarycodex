@@ -73,6 +73,55 @@ type SupportedLanguage = 'en' | 'ru'
 const SELF_HARM_FALLBACK =
   'I’m really sorry that things feel heavy right now. If you’re in immediate danger, please contact local emergency services. You can call or text 988 in the US/Canada, or find worldwide helplines at https://www.opencounseling.com/suicide-hotlines.'
 
+const POSITIVE_WORDS = ['grateful', 'happy', 'good', 'great', 'excited', 'calm', 'proud', 'energized']
+const NEGATIVE_WORDS = ['sad', 'tired', 'bad', 'anxious', 'angry', 'stressed', 'worried', 'overwhelmed', 'frustrated']
+
+function detectSentiment(text: string): 'positive' | 'negative' | 'neutral' {
+  const lower = text.toLowerCase()
+  const hasPositive = POSITIVE_WORDS.some((word) => lower.includes(word))
+  const hasNegative = NEGATIVE_WORDS.some((word) => lower.includes(word))
+  if (hasPositive && !hasNegative) return 'positive'
+  if (hasNegative && !hasPositive) return 'negative'
+  return 'neutral'
+}
+
+function calculateStreak(entry: EntryRow, history: HistoryRow[]): number {
+  let streak = 1
+  const dates = [entry.entry_date, ...history.map((item) => item.entry_date)]
+  const uniqueDates = Array.from(new Set(dates))
+  const sorted = uniqueDates
+    .map((iso) => new Date(iso))
+    .sort((a, b) => b.getTime() - a.getTime())
+
+  for (let i = 0; i < sorted.length - 1; i += 1) {
+    const current = sorted[i]
+    const next = sorted[i + 1]
+    const diffMs = current.getTime() - next.getTime()
+    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
+    if (diffDays === 1) {
+      streak += 1
+    } else {
+      break
+    }
+  }
+  return streak
+}
+
+function summarizeMood(history: HistoryRow[], today: EntryRow) {
+  const window = [today, ...history.slice(0, 3)]
+  const moodCounts = { positive: 0, negative: 0, neutral: 0 }
+  for (const item of window) {
+    const mood = detectSentiment(item.one_liner)
+    moodCounts[mood] += 1
+  }
+  const dominant = Object.entries(moodCounts).reduce(
+    (best, [mood, count]) => (count > best.count ? { mood: mood as 'positive' | 'negative' | 'neutral', count } : best),
+    { mood: 'neutral' as const, count: 0 },
+  )
+  return { windowSize: window.length, moodCounts, dominant: dominant.mood }
+}
+
+
 function ensureSentence(value: string) {
   const trimmed = value.trim()
   if (!trimmed) return ''
@@ -152,9 +201,9 @@ function createFallbackParts(entry: EntryRow): AiFeedbackParts {
   }
 
   return {
-    reflection: 'It sounds like today held meaningful moments for you.',
-    micro_step: 'Consider one small action you can take tomorrow to support how you want to feel.',
-    question: 'What support would help you follow through?',
+    reflection: 'It sounds like today held meaningful moments worth pausing on.',
+    micro_step: 'Choose one small action tomorrow that nudges the day toward how you want to feel.',
+    question: 'What support or environment would make that tiny step easier?',
   }
 }
 
@@ -162,7 +211,12 @@ function buildPrompt(entry: EntryRow, history: HistoryRow[]) {
   const formattedHistory = history
     .map((item) => `- ${item.entry_date}: ${item.one_liner}`)
     .join('\n')
-  return `Today is ${entry.entry_date}. The user wrote: "${entry.one_liner}". Recent entries (most recent first):\n${formattedHistory || 'None'}`
+  const streak = calculateStreak(entry, history)
+  const moodSummary = summarizeMood(history, entry)
+  const trendDetails = `Mood trend (last ${moodSummary.windowSize} entries): ${moodSummary.dominant} — positive ${moodSummary.moodCounts.positive}, neutral ${moodSummary.moodCounts.neutral}, negative ${moodSummary.moodCounts.negative}.`
+  return `Today is ${entry.entry_date}. The user wrote: "${entry.one_liner}". Recent entries (most recent first):
+${formattedHistory || 'None'}
+Streak: ${streak} day(s). ${trendDetails}`
 }
 
 async function callOpenAI(entry: EntryRow, history: HistoryRow[]): Promise<AiResult | null> {
@@ -186,7 +240,7 @@ async function callOpenAI(entry: EntryRow, history: HistoryRow[]): Promise<AiRes
         {
           role: 'system',
           content:
-            `You are a calm journaling coach. Detect the primary language of the user entry and respond entirely in that language. The entry appears to be in ${languageName}; if you clearly identify another language, use that instead. Respond using JSON that contains a short reflection, a micro-step suggestion for tomorrow, and a guiding question. Tone: respectful, no emojis, no clinical language. Keep the combined response within 320 characters when the sentences are read together.`,
+            `You are a calm journaling coach. Detect the primary language of the user entry and respond entirely in that language. The entry appears to be in ${languageName}; if you clearly identify another language, use that instead. Use the provided streak and mood trend context to personalize your coaching: acknowledge useful patterns, highlight consistency, and avoid repeating identical phrasing from earlier feedback. Respond using JSON that contains a short reflection (1 sentence), a micro_step suggestion for tomorrow (1 specific action), and a guiding question (open-ended). Tone: respectful, encouraging, no emojis, no clinical language. Keep the combined response within 320 characters when the sentences are read together.`,
         },
         {
           role: 'user',

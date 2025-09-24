@@ -13,8 +13,8 @@ Status legend: ✅ Done · ⚠️ In Progress/Partial · ⭕ Not Started
 
 ## AI Feedback
 - ✅ **Triggering & queueing** – Saving one-liner launches the Supabase function with loading/delayed states, jitter protection, and self-harm fallback; still keep an eye on retry timing during QA.
-- ⚠️ **Content requirements** – Edge function now enforces reflection/micro-step/question JSON schema and trims to ≤320 chars; needs real-model tuning and localization review.
-- ⚠️ **Skeleton & “will appear shortly” UX** – Insight card surfaces structured parts with badge + shimmer skeleton; final visual polish vs. Figma and motion specs still pending.
+- ✅ **Content requirements** – Edge function enriches prompts with streak/mood context, enforces JSON schema, and trims to ≤320 chars; monitor real-model output for tone tune-ups.
+- ✅ **Skeleton & “will appear shortly” UX** – Insight card now shows multi-row shimmer placeholders and improved delay messaging aligned with spec.
 
 ## Calendar & History
 - ✅ **Week strip indicators** – Uses summaries with hasShort/hasLong markers.
@@ -22,12 +22,12 @@ Status legend: ✅ Done · ⚠️ In Progress/Partial · ⭕ Not Started
 - ⚠️ **Today highlight & accessibility** – Ensure aria labels announce “today / has entry”; confirm contrast tokens with design system.
 
 ## Account / Profile Area
-- ⚠️ **Layout & navigation** – Account overview now routes to name/email/password screens; still need plan card states, notifications entry, and logout confirmation dialog.
+- ✅ **Layout & navigation** – Plan card links into plan screen with logout confirmation modal; notifications route now reachable.
 - ✅ **Name edit flow** – Supabase metadata updates with success/error states and cancel/back handling in place.
 - ✅ **Email update flow** – Supabase change email flow wired with confirmation messaging and error handling.
 - ⚠️ **Password update flow** – Re-auth + Supabase password update implemented; add strength meter, rate limiting UX, and analytics.
 - ✅ **Profile refresh UX** – Auth store refreshes after edits and global success toasts confirm updates.
-- ⭕ **Notifications screen & logic** – No UI or scheduling logic yet (Capacitor Local Notifications / email fallback).
+- ⚠️ **Notifications screen & logic** – UI scaffold exists; hook into Capacitor Local Notifications / email fallback.
 
 ## Billing & Entitlements
 - ⚠️ **Plan gating** – Client checks `plan.canUseLongForm` & `plan.canRequestFeedback`; requires real profile data (trial countdown, upgrade CTA) and paywall integration.

@@ -48,9 +48,19 @@ export default function AIInsightCard({ status, feedback, fallbackMessage, flagg
         Insight
       </span>
       {status === 'loading' ? (
-        <div className={styles.skeleton} />
+        <div className={styles.skeletonList} aria-hidden="true">
+          {[styles.skeletonLineLong, styles.skeletonLineMedium, styles.skeletonLineShort].map((variant, index) => (
+            <div key={index} className={styles.skeletonRow}>
+              <span className={styles.skeletonLabel} />
+              <span className={`${styles.skeletonLine} ${variant}`} />
+            </div>
+          ))}
+        </div>
       ) : status === 'delayed' ? (
-        <p className={styles.text}>{fallbackMessage ?? 'Feedback will appear shortly.'}</p>
+        <p className={styles.delayNotice}>
+          <span className={styles.delaySpinner} />
+          {fallbackMessage ?? 'Feedback will appear in just a moment.'}
+        </p>
       ) : status === 'error' ? (
         <p className={styles.text}>{fallbackMessage ?? 'We could not load feedback.'}</p>
       ) : status === 'flagged' ? (

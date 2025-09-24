@@ -1,5 +1,8 @@
-import { useAuth } from '@/state/useAuth'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/state/useAuth'
+import { usePlan } from '@/state/usePlan'
+import { useToast } from '@/state/useToast'
 import styles from './SettingsRoute.module.css'
 
 type SettingsItem = {
@@ -7,15 +10,36 @@ type SettingsItem = {
   to?: string
 }
 
+type PlanBadgeProps = {
+  tier: string
+  trialEndsAt: string | null
+}
+
+function PlanBadge({ tier, trialEndsAt }: PlanBadgeProps) {
+  if (tier === 'premium') {
+    return <span className={styles.planBadge}>Premium</span>
+  }
+  if (tier === 'trial') {
+    return (
+      <span className={styles.planBadge}>
+        Trial{trialEndsAt ? ` · ends ${new Date(trialEndsAt).toLocaleDateString()}` : ''}
+      </span>
+    )
+  }
+  return <span className={styles.planBadge}>Free</span>
+}
+
 export default function SettingsOverviewRoute() {
   const { signOut } = useAuth()
+  const { plan } = usePlan()
+  const { showToast } = useToast()
   const navigate = useNavigate()
+  const [confirmingLogout, setConfirmingLogout] = useState(false)
 
   const accountItems: SettingsItem[] = [
     { label: 'Name', to: 'name' },
     { label: 'Email', to: 'email' },
     { label: 'Password', to: 'password' },
-    { label: 'Premium' },
   ]
   const helpItems: SettingsItem[] = [
     { label: 'FAQ' },
@@ -23,7 +47,7 @@ export default function SettingsOverviewRoute() {
     { label: 'Report a bug' },
   ]
   const appPrefs: SettingsItem[] = [
-    { label: 'Notifications' },
+    { label: 'Notifications', to: 'notifications' },
     { label: 'Terms of Service' },
     { label: 'Privacy' },
   ]
@@ -31,6 +55,16 @@ export default function SettingsOverviewRoute() {
   function handleNavigate(item: SettingsItem) {
     if (!item.to) return
     navigate(item.to)
+  }
+
+  async function handleConfirmLogout() {
+    try {
+      await signOut()
+      showToast('You have been logged out.')
+      navigate('/auth', { replace: true })
+    } catch {
+      showToast('Failed to log out. Please try again.', 'error')
+    }
   }
 
   return (
@@ -50,6 +84,17 @@ export default function SettingsOverviewRoute() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Account</h2>
         <div className={styles.list}>
+          <button
+            type="button"
+            className={styles.item}
+            onClick={() => navigate('plan')}
+          >
+            <span>
+              Plan
+              <PlanBadge tier={plan.tier} trialEndsAt={plan.trialEndsAt} />
+            </span>
+            <span aria-hidden="true">›</span>
+          </button>
           {accountItems.map((item) => (
             <button
               key={item.label}
@@ -107,9 +152,28 @@ export default function SettingsOverviewRoute() {
         </div>
       </section>
 
-      <button type="button" className={styles.logout} onClick={() => void signOut()}>
-        Log out
-      </button>
+      <div className={styles.logoutSection}>
+        <button type="button" className={styles.logout} onClick={() => setConfirmingLogout(true)}>
+          Log out
+        </button>
+      </div>
+
+      {confirmingLogout ? (
+        <div role="dialog" aria-modal="true" className={styles.dialogOverlay}>
+          <div className={styles.dialog}>
+            <h2 className={styles.dialogTitle}>Log out?</h2>
+            <p className={styles.dialogBody}>You can sign back in anytime with your email and password.</p>
+            <div className={styles.dialogActions}>
+              <button type="button" className={styles.ghostButton} onClick={() => setConfirmingLogout(false)}>
+                Cancel
+              </button>
+              <button type="button" className={styles.dangerButton} onClick={() => void handleConfirmLogout()}>
+                Log out
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

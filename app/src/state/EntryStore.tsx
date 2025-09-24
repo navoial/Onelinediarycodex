@@ -185,7 +185,8 @@ export function EntryProvider({ children }: { children: ReactNode }) {
         const current = prev[isoDate]
         const next = updater(current)
         if (!next) {
-          const { [isoDate]: _removed, ...rest } = prev
+          const { [isoDate]: removedEntry, ...rest } = prev
+          void removedEntry
           return rest
         }
         if (current && current === next) {
@@ -352,7 +353,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
         updateDaySummary(isoDate, data)
       }
     },
-    [updateDaySummary],
+    [setRecord, updateDaySummary],
   )
 
   const ensureMonthSummary = useCallback(async (year: number, month: number) => {
@@ -388,7 +389,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
     })
 
     setSummaries((prev) => ({ ...prev, [monthKey]: next }))
-  }, [summaries])
+  }, [setSummaries, summaries])
 
   const queueAction = useCallback((action: QueueAction) => {
     setQueue((prev) => [...prev.filter((item) => item.id !== action.id), action])
@@ -507,7 +508,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
       queueRetryTimer.current = null
       void flushQueue()
     }, delay)
-  }, [queue, supabase, updateDaySummary])
+  }, [queue, setRecord, startFeedbackRequest, updateDaySummary])
 
   useEffect(() => {
     if (!isHydrated) return
@@ -609,7 +610,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
         }
       })
     },
-    [queueAction, startFeedbackRequest, updateDaySummary],
+    [queueAction, setRecord, startFeedbackRequest, updateDaySummary],
   )
 
   const saveLongText = useCallback(
@@ -680,7 +681,7 @@ export function EntryProvider({ children }: { children: ReactNode }) {
         }
       })
     },
-    [queueAction, updateDaySummary],
+    [queueAction, setRecord, updateDaySummary],
   )
 
   const value = useMemo<EntryContextValue>(
