@@ -104,16 +104,27 @@
   justify-content: center;
   border: 1px solid transparent;
   position: relative;
+  color: var(--color-ink-high);
+  transition: box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.dayCell:focus-visible {
+  outline: 3px solid var(--color-accent-primary);
+  outline-offset: 3px;
 }
 
 .today {
   border-color: var(--color-accent-primary);
+  color: var(--color-accent-primary);
+  background: rgba(57, 84, 255, 0.12);
   font-weight: var(--font-weight-semibold);
+  box-shadow: 0 0 0 1px rgba(57, 84, 255, 0.2);
 }
 
 .selected {
   background: var(--color-state-selected);
   color: var(--color-brand-white);
+  box-shadow: 0 0 0 2px rgba(58, 80, 255, 0.18);
 }
 
 .hasEntry::after {
@@ -157,4 +168,9 @@
   text-transform: uppercase;
   color: var(--color-ink-low);
   text-align: center;
+}
+
+.dayCell:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

@@ -4,7 +4,7 @@ Status legend: ✅ Done · ⚠️ In Progress/Partial · ⭕ Not Started
 
 ## Navigation & Layout
 - ✅ **Global header & week strip** – Month label opens calendar, chevron navigation and Today chip present, week strip reflects selected week with entry markers.
-- ⚠️ **Full calendar view** – Sticky headers, gradient nav bar, and stacked months with previous/next prefetch now match spec; still consider long-list virtualization/momentum tweaks for final polish.
+- ✅ **Full calendar view** – Sticky headers, gradient nav bar, and stacked months with previous/next prefetch now match spec; still consider long-list virtualization/momentum tweaks for final polish.
 
 ## Core Journaling Flows
 - ✅ **One-sentence entry** – 220 grapheme limit enforced with live counter; save/upsert wired via `EntryStore`; status messaging (“Saved/Syncing/Offline”) in place.
@@ -13,33 +13,34 @@ Status legend: ✅ Done · ⚠️ In Progress/Partial · ⭕ Not Started
 
 ## AI Feedback
 - ✅ **Triggering & queueing** – Saving one-liner launches the Supabase function with loading/delayed states, jitter protection, and self-harm fallback; still keep an eye on retry timing during QA.
-- ✅ **Content requirements** – Edge function enriches prompts with streak/mood context, enforces JSON schema, and trims to ≤320 chars; monitor real-model output for tone tune-ups.
-- ✅ **Skeleton & “will appear shortly” UX** – Insight card now shows multi-row shimmer placeholders and improved delay messaging aligned with spec.
+- ⚠️ **Content requirements** – Edge function now enforces reflection/micro-step/question JSON schema and trims to ≤320 chars; needs real-model tuning and localization review.
+- ⚠️ **Skeleton & “will appear shortly” UX** – Insight card surfaces structured parts with badge + shimmer skeleton; final visual polish vs. Figma and motion specs still pending.
 
 ## Calendar & History
 - ✅ **Week strip indicators** – Uses summaries with hasShort/hasLong markers.
 - ✅ **Month summaries prefetch** – Calendar now loads previous/current/next month summaries up front to keep markers stable while scrolling.
-- ⚠️ **Today highlight & accessibility** – Ensure aria labels announce “today / has entry”; confirm contrast tokens with design system.
+- ✅ **Today highlight & accessibility** – Calendar day buttons expose aria-current/labels and improved contrast for the today state.
 
 ## Account / Profile Area
-- ✅ **Layout & navigation** – Plan card links into plan screen with logout confirmation modal; notifications route now reachable.
+- ⚠️ **Layout & navigation** – Account overview now routes to name/email/password screens; still need plan card states, notifications entry, and logout confirmation dialog.
 - ✅ **Name edit flow** – Supabase metadata updates with success/error states and cancel/back handling in place.
 - ✅ **Email update flow** – Supabase change email flow wired with confirmation messaging and error handling.
 - ⚠️ **Password update flow** – Re-auth + Supabase password update implemented; add strength meter, rate limiting UX, and analytics.
 - ✅ **Profile refresh UX** – Auth store refreshes after edits and global success toasts confirm updates.
-- ⚠️ **Notifications screen & logic** – UI scaffold exists; hook into Capacitor Local Notifications / email fallback.
+- ⭕ **Notifications screen & logic** – No UI or scheduling logic yet (Capacitor Local Notifications / email fallback).
 
 ## Billing & Entitlements
 - ⚠️ **Plan gating** – Client checks `plan.canUseLongForm` & `plan.canRequestFeedback`; requires real profile data (trial countdown, upgrade CTA) and paywall integration.
-- ⭕ **Upgrade / Restore flows** – Stripe / StoreKit interactions, RevenueCat integration, and plan card states not implemented.
+- ⭕ **Upgrade / Restore flows** – Publish unified premium SKU; wire StoreKit 2 (iOS), Google Play Billing (Android), and Stripe Checkout (web) into entitlement sync + restore UX.
+- ⭕ **Trials & receipt clearinghouse** – Add free-trial config per platform, implement server-side receipt validation (App Store Server API + Play RTDN) and Stripe webhooks, or adopt RevenueCat/Adapty for aggregation.
 
 ## Offline & Sync
 - ✅ **IndexedDB cache & queue** – Safe get/set with DOMException handling, optimistic updates, retry backoff, and online listeners implemented.
 - ⚠️ **Conflict messaging** – Need user-facing notice for sync conflicts per SRS and persistence of losing versions for recovery.
 
 ## Export & Account Deletion
-- ⭕ **Export data** – No UI or backend hook for signed URL generation yet.
-- ⭕ **Delete account** – Missing confirmation flow and Supabase RPC wiring.
+- ✅ **Export data** – Edge function now serves JSON or human-readable TXT exports; settings screen lets users grab either format.
+- ✅ **Delete account** – Confirmation flow calls Supabase function to purge data and remove the auth user.
 
 ## Notifications & Reminders
 - ⭕ **Reminder scheduling** – No logic for local notifications/email cron, anti-spam rules, or preference persistence.

@@ -8,6 +8,7 @@ import styles from './SettingsRoute.module.css'
 type SettingsItem = {
   label: string
   to?: string
+  tone?: 'default' | 'danger'
 }
 
 type PlanBadgeProps = {
@@ -50,6 +51,10 @@ export default function SettingsOverviewRoute() {
     { label: 'Notifications', to: 'notifications' },
     { label: 'Terms of Service' },
     { label: 'Privacy' },
+  ]
+  const dataItems: SettingsItem[] = [
+    { label: 'Export data', to: 'export' },
+    { label: 'Delete account', to: 'delete', tone: 'danger' },
   ]
 
   function handleNavigate(item: SettingsItem) {
@@ -99,7 +104,7 @@ export default function SettingsOverviewRoute() {
             <button
               key={item.label}
               type="button"
-              className={styles.item}
+              className={`${styles.item} ${item.tone === 'danger' ? styles.itemDanger : ''}`}
               onClick={() => handleNavigate(item)}
               aria-disabled={!item.to}
               disabled={!item.to}
@@ -119,7 +124,7 @@ export default function SettingsOverviewRoute() {
             <button
               key={item.label}
               type="button"
-              className={styles.item}
+              className={`${styles.item} ${item.tone === 'danger' ? styles.itemDanger : ''}`}
               onClick={() => handleNavigate(item)}
               aria-disabled={!item.to}
               disabled={!item.to}
@@ -139,7 +144,27 @@ export default function SettingsOverviewRoute() {
             <button
               key={item.label}
               type="button"
-              className={styles.item}
+              className={`${styles.item} ${item.tone === 'danger' ? styles.itemDanger : ''}`}
+              onClick={() => handleNavigate(item)}
+              aria-disabled={!item.to}
+              disabled={!item.to}
+              tabIndex={item.to ? 0 : -1}
+            >
+              {item.label}
+              <span aria-hidden="true">›</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Data & privacy</h2>
+        <div className={styles.list}>
+          {dataItems.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              className={`${styles.item} ${item.tone === 'danger' ? styles.itemDanger : ''}`}
               onClick={() => handleNavigate(item)}
               aria-disabled={!item.to}
               disabled={!item.to}

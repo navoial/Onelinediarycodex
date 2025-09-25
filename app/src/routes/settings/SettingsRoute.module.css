@@ -119,6 +119,16 @@
   font-size: 14px;
 }
 
+.helperList {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--color-ink-low);
+  font-size: 14px;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -147,6 +157,27 @@
 }
 
 .primaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font-weight: var(--font-weight-semibold);
+  font-size: 14px;
+  border: 1px solid var(--color-border-default);
+  background: var(--color-brand-white);
+  color: var(--color-ink-high);
+  cursor: pointer;
+  text-align: center;
+}
+
+.secondaryButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -236,6 +267,11 @@
   cursor: pointer;
 }
 
+.dangerButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .planCard {
   display: flex;
   justify-content: space-between;
@@ -289,4 +325,117 @@
 .toggleRow input {
   width: 42px;
   height: 24px;
+}
+
+.itemDanger {
+  color: #c0362c;
+}
+
+.itemDanger:hover,
+.itemDanger:focus-visible {
+  color: #a12d23;
+}
+
+.exportCard {
+  display: flex;
+  gap: var(--space-m);
+  align-items: flex-start;
+  background: var(--color-brand-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  padding: var(--space-l) var(--space-xl);
+}
+
+.exportIcon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.exportCopy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+.buttonCluster {
+  display: grid;
+  gap: var(--space-s);
+}
+
+.exportButton {
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-brand-white);
+  color: var(--color-ink-high);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+
+.exportButton:hover:not(:disabled),
+.exportButton:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(15, 15, 16, 0.12);
+}
+
+.exportButton:focus-visible {
+  outline: 2px solid rgba(15, 15, 16, 0.5);
+  outline-offset: 2px;
+}
+
+.exportButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+.exportPrimaryButton {
+  background: var(--color-ink-high);
+  border-color: var(--color-ink-high);
+  color: var(--color-brand-white);
+}
+
+.exportPrimaryButton:hover:not(:disabled),
+.exportPrimaryButton:focus-visible {
+  background: #000;
+  border-color: #000;
+  box-shadow: 0 12px 20px rgba(15, 15, 16, 0.24);
+}
+
+.exportSecondaryButton {
+  background: var(--color-brand-white);
+  border-color: var(--color-border-strong, var(--color-border-default));
+  color: var(--color-ink-high);
+}
+
+.exportSecondaryButton:hover:not(:disabled),
+.exportSecondaryButton:focus-visible {
+  background: #f7f7f8;
+}
+
+.buttonHint {
+  font-size: 13px;
+  color: var(--color-ink-low);
+}
+
+.buttonLabel {
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.buttonLoading {
+  opacity: 0.65;
+}
+
+@media (min-width: 640px) {
+  .buttonCluster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

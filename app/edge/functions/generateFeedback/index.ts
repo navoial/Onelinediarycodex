@@ -24,10 +24,14 @@ const supabase =
       })
     : undefined
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+function buildCorsHeaders(req: Request) {
+  const requestHeaders = req.headers.get('Access-Control-Request-Headers')
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': requestHeaders || 'authorization, Authorization, x-client-info, apikey, content-type, accept',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+  }
 }
 
 type GenerateFeedbackRequest = {
@@ -379,7 +383,8 @@ async function updateEntry(entry: EntryRow, feedback: string): Promise<UpdateRes
 serve(async (req) => {
   try {
     if (req.method === 'OPTIONS') {
-      return new Response('ok', {
+      const corsHeaders = buildCorsHeaders(req)
+    return new Response('ok', {
         status: 200,
         headers: corsHeaders,
       })

@@ -159,8 +159,21 @@ export default function CalendarRoute() {
                 if (isSelected) classNames.push(styles.selected)
                 const iso = toISODateString(day)
                 const indicator = summary?.[iso]
-                if (indicator?.hasShort) classNames.push(styles.hasEntry)
-                if (indicator?.hasLong) classNames.push(styles.hasLong)
+                const hasShortEntry = Boolean(indicator?.hasShort)
+                const hasLongEntry = Boolean(indicator?.hasLong)
+                if (hasShortEntry) classNames.push(styles.hasEntry)
+                if (hasLongEntry) classNames.push(styles.hasLong)
+                const dateLabel = new Intl.DateTimeFormat(navigator.language, { weekday: 'long', month: 'long', day: 'numeric' }).format(day)
+                const statusParts: string[] = [dateLabel]
+                if (isToday) statusParts.push('today')
+                if (isSelected) statusParts.push('selected')
+                if (hasShortEntry && hasLongEntry) {
+                  statusParts.push('has short and long entries')
+                } else if (hasShortEntry) {
+                  statusParts.push('has entry')
+                } else if (hasLongEntry) {
+                  statusParts.push('has long entry')
+                }
                 return (
                   <button
                     type="button"
@@ -168,6 +181,8 @@ export default function CalendarRoute() {
                     className={classNames.join(' ')}
                     onClick={() => handleSelect(day)}
                     disabled={!allowFuture && day > today}
+                    aria-current={isToday ? 'date' : undefined}
+                    aria-label={statusParts.join(', ')}
                   >
                     {formatDayNumber(day)}
                   </button>

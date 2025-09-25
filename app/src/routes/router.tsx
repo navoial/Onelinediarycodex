@@ -9,6 +9,8 @@ import SettingsEmailRoute from './settings/SettingsEmailRoute'
 import SettingsPasswordRoute from './settings/SettingsPasswordRoute'
 import SettingsPlanRoute from './settings/SettingsPlanRoute'
 import SettingsNotificationsRoute from './settings/SettingsNotificationsRoute'
+import SettingsExportRoute from './settings/SettingsExportRoute'
+import SettingsDeleteAccountRoute from './settings/SettingsDeleteAccountRoute'
 import PaywallRoute from './paywall/PaywallRoute'
 import AuthRoute from './auth/AuthRoute'
 
@@ -33,6 +35,8 @@ export const router = createBrowserRouter([
           { path: 'password', element: <SettingsPasswordRoute /> },
           { path: 'plan', element: <SettingsPlanRoute /> },
           { path: 'notifications', element: <SettingsNotificationsRoute /> },
+          { path: 'export', element: <SettingsExportRoute /> },
+          { path: 'delete', element: <SettingsDeleteAccountRoute /> },
         ],
       },
       { path: 'paywall', element: <PaywallRoute /> },
